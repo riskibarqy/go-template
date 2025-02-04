@@ -9,13 +9,13 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi"
-	"github.com/riskibarqy/99backend-challenge/datatransfers"
-	"github.com/riskibarqy/99backend-challenge/internal/appcontext"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	"github.com/riskibarqy/99backend-challenge/internal/http/response"
-	"github.com/riskibarqy/99backend-challenge/internal/types"
-	"github.com/riskibarqy/99backend-challenge/internal/user"
-	"github.com/riskibarqy/99backend-challenge/models"
+	"github.com/riskibarqy/go-template/datatransfers"
+	"github.com/riskibarqy/go-template/internal/appcontext"
+	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/http/response"
+	"github.com/riskibarqy/go-template/internal/types"
+	"github.com/riskibarqy/go-template/internal/user"
+	"github.com/riskibarqy/go-template/models"
 )
 
 // UserController represents the user controller

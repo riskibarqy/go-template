@@ -10,10 +10,10 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/riskibarqy/99backend-challenge/config"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	"github.com/riskibarqy/99backend-challenge/internal/http/controller"
-	"github.com/riskibarqy/99backend-challenge/internal/user"
+	"github.com/riskibarqy/go-template/config"
+	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/http/controller"
+	"github.com/riskibarqy/go-template/internal/user"
 	"github.com/rs/cors"
 )
 

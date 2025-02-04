@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 
-	"github.com/riskibarqy/99backend-challenge/config"
-	"github.com/riskibarqy/99backend-challenge/datatransfers"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	"github.com/riskibarqy/99backend-challenge/internal/types"
-	"github.com/riskibarqy/99backend-challenge/models"
-	"github.com/riskibarqy/99backend-challenge/utils"
+	"github.com/riskibarqy/go-template/config"
+	"github.com/riskibarqy/go-template/datatransfers"
+	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/types"
+	"github.com/riskibarqy/go-template/models"
+	"github.com/riskibarqy/go-template/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

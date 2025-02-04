@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/riskibarqy/99backend-challenge/internal/types"
+	"github.com/riskibarqy/go-template/internal/types"
 
 	validator "gopkg.in/go-playground/validator.v9"
 

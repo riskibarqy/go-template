@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/riskibarqy/99backend-challenge/datatransfers"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	"github.com/riskibarqy/99backend-challenge/internal/types"
-	"github.com/riskibarqy/99backend-challenge/models"
+	"github.com/riskibarqy/go-template/datatransfers"
+	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/types"
+	"github.com/riskibarqy/go-template/models"
 )
 
 // PostgresStorage implements the user storage service interface

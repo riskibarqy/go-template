@@ -1,6 +1,6 @@
 package datatransfers
 
-import "github.com/riskibarqy/99backend-challenge/models"
+import "github.com/riskibarqy/go-template/models"
 
 // LoginParams represent the http request data for login user
 type LoginParams struct {

@@ -5,12 +5,12 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/riskibarqy/99backend-challenge/config"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	internalhttp "github.com/riskibarqy/99backend-challenge/internal/http"
-	"github.com/riskibarqy/99backend-challenge/internal/user"
-	userPg "github.com/riskibarqy/99backend-challenge/internal/user/postgres"
-	"github.com/riskibarqy/99backend-challenge/models"
+	"github.com/riskibarqy/go-template/config"
+	"github.com/riskibarqy/go-template/internal/data"
+	internalhttp "github.com/riskibarqy/go-template/internal/http"
+	"github.com/riskibarqy/go-template/internal/user"
+	userPg "github.com/riskibarqy/go-template/internal/user/postgres"
+	"github.com/riskibarqy/go-template/models"
 )
 
 // InternalServices represents all the internal domain services

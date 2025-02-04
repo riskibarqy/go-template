@@ -5,8 +5,8 @@ import (
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
-	"github.com/riskibarqy/99backend-challenge/config"
-	"github.com/riskibarqy/99backend-challenge/databases"
+	"github.com/riskibarqy/go-template/config"
+	"github.com/riskibarqy/go-template/databases"
 )
 
 func main() {

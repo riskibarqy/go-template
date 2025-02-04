@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/riskibarqy/99backend-challenge/internal/appcontext"
-	"github.com/riskibarqy/99backend-challenge/internal/data"
-	"github.com/riskibarqy/99backend-challenge/internal/http/response"
-	"github.com/riskibarqy/99backend-challenge/internal/types"
-	"github.com/riskibarqy/99backend-challenge/internal/user"
-	"github.com/riskibarqy/99backend-challenge/utils"
+	"github.com/riskibarqy/go-template/internal/appcontext"
+	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/http/response"
+	"github.com/riskibarqy/go-template/internal/types"
+	"github.com/riskibarqy/go-template/internal/user"
+	"github.com/riskibarqy/go-template/utils"
 )
 
 func (hs *Server) authorizedOnly(userService user.ServiceInterface) func(next http.Handler) http.Handler {
