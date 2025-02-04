@@ -1,0 +1,2 @@
+DB_CONNECTION_STRING="postgres://user:password@localhost/account_db?sslmode=disable"
+JWT_SECRET="verysecretkey"

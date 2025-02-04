@@ -1,0 +1,2 @@
+	INSERT INTO "public"."user" ("name", "email", "password", "token", "token_expired_at", "created_at", "updated_at", "deleted_at") 
+	VALUES ('Riski Ramdan', 'riskibarqy@gmail.com', '$2a$10$c2gIKDaKiwgUKlD3CnDZ7uBBbXIgID8TJtKSIHrMIko2jo6TEqKwW', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNzM2MTc3MzMyLCJpc3MiOiJzdXBlcmluZG8tYXBwIn0.2B6zJvqFWv4hycBdwg1L4Ng6TtaUsbGqMIOZ01PU00Y', extract(epoch from now()), extract(epoch from now()), extract(epoch from now()), NULL);
