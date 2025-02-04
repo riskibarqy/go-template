@@ -8,5 +8,6 @@ import (
 )
 
 func main() {
+	config.GetConfiguration()
 	databases.NewMigrator(config.AppConfig.DBConnectionString).Run("up")
 }

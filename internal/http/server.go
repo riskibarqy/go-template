@@ -86,6 +86,7 @@ func (hs *Server) compileRouter() chi.Router {
 		hs.authMethod(r, "GET", "/users", hs.userController.ListUser)
 		hs.authMethod(r, "GET", "/users/{userId}", hs.userController.GetUserByID)
 		hs.authMethod(r, "POST", "/users", hs.userController.CreateUser)
+		hs.authMethod(r, "DELETE", "/users/{userId}", hs.userController.DeleteUser)
 	})
 
 	// Public Users Route

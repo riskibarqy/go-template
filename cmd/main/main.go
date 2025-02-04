@@ -18,6 +18,8 @@ import (
 	"github.com/riskibarqy/go-template/models"
 )
 
+var ctx = context.Background()
+
 // InternalServices represents all the internal domain services
 type InternalServices struct {
 	userService user.ServiceInterface
@@ -35,7 +37,6 @@ func buildInternalServices(db *sqlx.DB, _ *config.Config) *InternalServices {
 }
 
 func initMetadataConfig() {
-	ctx := context.Background()
 	rc, err := reload.New(ctx)
 	if err != nil {
 		log.Fatalln(err)
@@ -72,15 +73,6 @@ func main() {
 
 	// Print the current mode
 	fmt.Printf("Running in %s mode\n", config.AppConfig.AppMode)
-
-	// Example: Conditional logic based on the mode
-	if config.AppConfig.AppMode == "development" {
-		// Development-specific settings
-		fmt.Println("Development settings applied")
-	} else {
-		// Production-specific settings
-		fmt.Println("Production settings applied")
-	}
 
 	dataManager := data.NewManager(config.AppConfig.DatabaseClient)
 	internalServices := buildInternalServices(config.AppConfig.DatabaseClient, config.AppConfig)

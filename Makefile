@@ -6,7 +6,7 @@ endif
 
 MIGRATE=migrate -path databases/migrations -database "$(DB_CONNECTION_STRING)"
 
-.PHONY: migrate-up migrate-down migrate-new migrate-force migrate-version
+.PHONY: migrate-up migrate-down migrate-new migrate-force migrate-version 
 
 # Create a new migration file with timestamp prefix
 migrate-new:

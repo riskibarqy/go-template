@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/riskibarqy/go-template/utils"
 )
 
 // ErrNotEnough declare specific error for Not Enough
@@ -424,7 +424,7 @@ func (r *PostgresStorage) Delete(ctx context.Context, id interface{}) error {
 
 	deleteArgs := map[string]interface{}{
 		"id":        id,
-		"deletedAt": time.Now().UTC(),
+		"deletedAt": utils.Now(),
 	}
 
 	_, err = statement.Exec(deleteArgs)

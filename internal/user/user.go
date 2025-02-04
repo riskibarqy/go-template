@@ -70,7 +70,6 @@ func (s *Service) ListUsers(ctx context.Context, params *datatransfers.FindAllPa
 		// If cache hit, unmarshal the cached data into a slice of User models
 		var users []*models.User
 		if err := jsoniter.Unmarshal([]byte(cached), &users); err == nil {
-			fmt.Println("Retrieved users from cache")
 			return users, count, nil
 		}
 	}
@@ -82,30 +81,56 @@ func (s *Service) ListUsers(ctx context.Context, params *datatransfers.FindAllPa
 		return nil, 0, err
 	}
 
-	fmt.Println("Fetched users from database")
+	go func() {
+		ctxChild := context.Background()
 
-	// Cache users and their count
-	byteResults, _ := jsoniter.Marshal(users)
-	expiration := time.Duration(config.MetadataConfig.RedisExpirationShort) * time.Second
+		// Cache users and their count
+		byteResults, _ := jsoniter.Marshal(users)
+		expiration := time.Duration(config.MetadataConfig.RedisExpirationShort) * time.Second
 
-	if err := redis.SetCache(ctx, cacheKey, byteResults, expiration); err != nil {
-		log.Printf("Failed to set user cache: %v", err)
-	}
+		if err := redis.SetCache(ctxChild, cacheKey, byteResults, expiration); err != nil {
+			log.Printf("Failed to set user cache: %v", err)
+		}
 
-	if err := redis.SetCache(ctx, fmt.Sprintf("cnt-%s", cacheKey), strconv.Itoa(len(users)), expiration); err != nil {
-		log.Printf("Failed to set user count cache: %v", err)
-	}
+		if err := redis.SetCache(ctxChild, fmt.Sprintf("cnt-%s", cacheKey), strconv.Itoa(len(users)), expiration); err != nil {
+			log.Printf("Failed to set user count cache: %v", err)
+		}
+	}()
 
 	return users, len(users), nil
 }
 
 // GetUser is get user
 func (s *Service) GetUser(ctx context.Context, userID int) (*models.User, *types.Error) {
+	cacheKey := fmt.Sprintf("GetUser-%d", userID)
+
+	// Try to get users from Redis cache
+	cached, errCache := redis.GetCache(ctx, cacheKey)
+	if errCache == nil && cached != "" {
+		// If cache hit, unmarshal the cached data into a slice of User models
+		var user *models.User
+		if err := jsoniter.Unmarshal([]byte(cached), &user); err == nil {
+			return user, nil
+		}
+	}
+
 	user, err := s.userStorage.FindByID(ctx, userID)
 	if err != nil {
 		err.Path = ".UserService->GetUser()" + err.Path
 		return nil, err
 	}
+
+	go func() {
+		ctxChild := context.Background()
+
+		// Cache user
+		byteResults, _ := jsoniter.Marshal(user)
+		expiration := time.Duration(config.MetadataConfig.RedisExpirationShort) * time.Second
+
+		if err := redis.SetCache(ctxChild, cacheKey, byteResults, expiration); err != nil {
+			log.Printf("Failed to set user cache: %v", err)
+		}
+	}()
 
 	return user, nil
 }
@@ -192,6 +217,17 @@ func (s *Service) UpdateUser(ctx context.Context, userID int, params *models.Use
 		return nil, err
 	}
 
+	go func() {
+		ctxChild := context.Background()
+
+		cacheKey := fmt.Sprintf("GetUser-%d", userID)
+
+		// delete user cache
+		if err := redis.DeleteCache(ctxChild, cacheKey); err != nil {
+			log.Printf("Failed to set user cache: %v", err)
+		}
+	}()
+
 	return user, nil
 }
 
@@ -202,6 +238,17 @@ func (s *Service) DeleteUser(ctx context.Context, userID int) *types.Error {
 		err.Path = ".UserService->DeleteUser()" + err.Path
 		return err
 	}
+
+	go func() {
+		ctxChild := context.Background()
+
+		cacheKey := fmt.Sprintf("GetUser-%d", userID)
+
+		// delete user cache
+		if err := redis.DeleteCache(ctxChild, cacheKey); err != nil {
+			log.Printf("Failed to set user cache: %v", err)
+		}
+	}()
 
 	return nil
 }
@@ -241,12 +288,23 @@ func (s *Service) ChangePassword(ctx context.Context, userID int, oldPassword, n
 		return err
 	}
 
+	go func() {
+		ctxChild := context.Background()
+
+		cacheKey := fmt.Sprintf("GetUser-%d", userID)
+
+		// delete user cache
+		if err := redis.DeleteCache(ctxChild, cacheKey); err != nil {
+			log.Printf("Failed to set user cache: %v", err)
+		}
+	}()
+
 	return nil
 }
 
 // Login login
 func (s *Service) Login(ctx context.Context, email string, password string) (*datatransfers.LoginResponse, *types.Error) {
-	users, err := s.userStorage.FindAll(ctx, &datatransfers.FindAllParams{
+	users, _, err := s.ListUsers(ctx, &datatransfers.FindAllParams{
 		Email: email,
 	})
 	if err != nil {

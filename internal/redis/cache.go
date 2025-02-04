@@ -18,7 +18,7 @@ func SetCache(ctx context.Context, key string, value interface{}, expiration tim
 func GetCache(ctx context.Context, key string) (string, error) {
 	val, err := RedisClient.Get(ctx, key).Result()
 	if err == redis.Nil {
-		return "", nil // Key does not exist
+		return "", nil
 	} else if err != nil {
 		return "", err
 	}
