@@ -60,36 +60,35 @@ func (hs *Server) compileRouter() chi.Router {
 	})
 	r.Use(cors.Handler)
 
-	// Add routes
+	// Define the base URL for the API
+	baseURL := "/account-service/v1"
 
-	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+	// Public Routes (No authorization required)
+	r.HandleFunc(baseURL+"/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("success"))
 	})
 
-	r.HandleFunc("/public-api/login", hs.userController.Login)
+	r.HandleFunc(baseURL+"/login", hs.userController.Login)
 
-	// r.Route("/users", func(r chi.Router) {
-	// 	r.Post("/", hs.userController.CreateUser)
-	// 	r.Get("/", hs.userController.ListUser)
-	// 	r.Get("/{userId}", hs.userController.GetUserByID)
-	// })
-
-	r.Route("/public-api/users", func(r chi.Router) {
-		r.Post("/", hs.userController.CreateUser)
-	})
-
-	r.Route("/private", func(r chi.Router) {
+	// Private Routes (Authorization required)
+	r.Route(baseURL+"/private", func(r chi.Router) {
+		// Middleware for authorized requests
 		r.Use(hs.authorizedOnly(hs.userService))
 
-		// private users
+		// Logout (protected by authorization)
 		hs.authMethod(r, "GET", "/logout", hs.userController.Logout)
+
+		// Private User routes (require authorization)
 		hs.authMethod(r, "PUT", "/users/changePassword", hs.userController.ChangePassword)
 		hs.authMethod(r, "PUT", "/users/{userId}", hs.userController.UpdateUser)
 		hs.authMethod(r, "GET", "/users", hs.userController.ListUser)
 		hs.authMethod(r, "GET", "/users/{userId}", hs.userController.GetUserByID)
 		hs.authMethod(r, "POST", "/users", hs.userController.CreateUser)
 	})
+
+	// Public Users Route
+	r.HandleFunc(baseURL+"/public/users", hs.userController.ListUser) // Add any public-specific user operations
 
 	return r
 }

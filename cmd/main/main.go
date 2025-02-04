@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/riskibarqy/go-template/config"
 	"github.com/riskibarqy/go-template/internal/data"
 	internalhttp "github.com/riskibarqy/go-template/internal/http"

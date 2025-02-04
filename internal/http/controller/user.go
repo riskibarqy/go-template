@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"reflect"
 	"strconv"
 
 	"github.com/go-chi/chi"
+	"github.com/go-playground/validator/v10"
 	"github.com/riskibarqy/go-template/datatransfers"
 	"github.com/riskibarqy/go-template/internal/appcontext"
 	"github.com/riskibarqy/go-template/internal/data"
@@ -161,31 +161,31 @@ func (a *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (a *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var err *types.Error
 
-	errParseForm := r.ParseForm()
-	if errParseForm != nil {
+	decoder := json.NewDecoder(r.Body)
+
+	var params *models.User
+	errDecode := decoder.Decode(&params)
+	if errDecode != nil {
 		err = &types.Error{
 			Path:    ".UserController->CreateUser()",
-			Message: errParseForm.Error(),
-			Error:   errParseForm,
+			Message: errDecode.Error(),
+			Error:   errDecode,
 			Type:    "golang-error",
 		}
 		response.Error(w, "Bad Request", http.StatusBadRequest, *err)
 		return
 	}
 
-	params := &models.User{
-		Email:    r.FormValue("email"),
-		Name:     r.FormValue("name"),
-		Password: r.FormValue("password"),
-	}
-
-	requiredFields := map[string]string{
-		"Name":     "user name is required",
-		"Email":    "user email is required",
-		"Password": "user password is required",
-	}
-
-	if !a.validateRequiredFields(w, params, requiredFields) {
+	validate := validator.New()
+	errValidation := validate.Struct(params)
+	if errValidation != nil {
+		err = &types.Error{
+			Path:    ".UserController->CreateUser()",
+			Message: errValidation.Error(),
+			Error:   errValidation,
+			Type:    "golang-error",
+		}
+		response.Error(w, "Bad Request", http.StatusBadRequest, *err)
 		return
 	}
 
@@ -246,10 +246,10 @@ func (a *UserController) ListUser(w http.ResponseWriter, r *http.Request) {
 	var err *types.Error
 
 	queryValues := r.URL.Query()
-	var pageSize = 10
+	var limit = 10
 	var errConversion error
-	if queryValues.Get("page_size") != "" {
-		pageSize, errConversion = strconv.Atoi(queryValues.Get("page_size"))
+	if queryValues.Get("limit") != "" {
+		limit, errConversion = strconv.Atoi(queryValues.Get("limit"))
 		if errConversion != nil {
 			err = &types.Error{
 				Path:    ".UserController->ListUser()",
@@ -262,9 +262,9 @@ func (a *UserController) ListUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var pageNum = 1
-	if queryValues.Get("page_num") != "" {
-		pageNum, errConversion = strconv.Atoi(queryValues.Get("page_num"))
+	var page = 1
+	if queryValues.Get("page") != "" {
+		page, errConversion = strconv.Atoi(queryValues.Get("page"))
 		if errConversion != nil {
 			err = &types.Error{
 				Path:    ".UserController->ListUser()",
@@ -279,16 +279,16 @@ func (a *UserController) ListUser(w http.ResponseWriter, r *http.Request) {
 
 	var search = queryValues.Get("search")
 
-	if pageSize < 0 {
-		pageSize = 10
+	if limit < 0 {
+		limit = 10
 	}
-	if pageNum < 0 {
-		pageNum = 1
+	if page < 0 {
+		page = 1
 	}
 	userList, count, err := a.userService.ListUsers(r.Context(), &datatransfers.FindAllParams{
-		Limit:  pageSize,
+		Limit:  limit,
 		Search: search,
-		Page:   pageNum,
+		Page:   page,
 	})
 	if err != nil {
 		err.Path = ".UserController->ListUser()" + err.Path
@@ -363,24 +363,6 @@ func (a *UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, http.StatusOK, user)
 
-}
-
-func (a *UserController) validateRequiredFields(w http.ResponseWriter, params *models.User, fields map[string]string) bool {
-	for field, message := range fields {
-		value := reflect.ValueOf(params).Elem().FieldByName(field).String()
-		if value == "" {
-			errValidation := errors.New(message)
-			err := &types.Error{
-				Path:    ".UserController->CreateUser()",
-				Message: errValidation.Error(),
-				Error:   errValidation,
-				Type:    "golang-error",
-			}
-			response.Error(w, message, http.StatusBadRequest, *err)
-			return false
-		}
-	}
-	return true
 }
 
 // NewUserController creates a new user controller
