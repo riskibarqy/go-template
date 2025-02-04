@@ -1,2 +1,5 @@
+APP_MODE="development"
 DB_CONNECTION_STRING="postgres://user:password@localhost/account_db?sslmode=disable"
 JWT_SECRET="verysecretkey"
+REDIS_ADDR="localhost:6379"
+REDIS_PASSWORD="password"

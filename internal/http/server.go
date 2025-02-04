@@ -66,7 +66,8 @@ func (hs *Server) compileRouter() chi.Router {
 	// Public Routes (No authorization required)
 	r.HandleFunc(baseURL+"/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("success"))
+		w.Write([]byte(config.AppConfig.AppMode))
+		// w.Write([]byte("success"))
 	})
 
 	r.HandleFunc(baseURL+"/login", hs.userController.Login)

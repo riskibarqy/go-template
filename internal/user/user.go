@@ -3,10 +3,16 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"strconv"
+	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/riskibarqy/go-template/config"
 	"github.com/riskibarqy/go-template/datatransfers"
 	"github.com/riskibarqy/go-template/internal/data"
+	"github.com/riskibarqy/go-template/internal/redis"
 	"github.com/riskibarqy/go-template/internal/types"
 	"github.com/riskibarqy/go-template/models"
 	"github.com/riskibarqy/go-template/utils"
@@ -53,22 +59,44 @@ type Service struct {
 	userStorage Storage
 }
 
-// ListUsers is listing users
 func (s *Service) ListUsers(ctx context.Context, params *datatransfers.FindAllParams) ([]*models.User, int, *types.Error) {
+	// Generate cache key
+	byteParams, _ := jsoniter.Marshal(params)
+	cacheKey := fmt.Sprintf("ListUsers-%s", utils.EncodeHexMD5(string(byteParams)))
+
+	// Try to get users from Redis cache
+	cached, count, errCache := redis.GetListCache(ctx, cacheKey)
+	if errCache == nil && cached != "" {
+		// If cache hit, unmarshal the cached data into a slice of User models
+		var users []*models.User
+		if err := jsoniter.Unmarshal([]byte(cached), &users); err == nil {
+			fmt.Println("Retrieved users from cache")
+			return users, count, nil
+		}
+	}
+
+	// Fetch users from database
 	users, err := s.userStorage.FindAll(ctx, params)
 	if err != nil {
 		err.Path = ".UserService->ListUsers()" + err.Path
 		return nil, 0, err
 	}
-	params.Page = 0
-	params.Limit = 0
-	allUsers, err := s.userStorage.FindAll(ctx, params)
-	if err != nil {
-		err.Path = ".UserService->ListUsers()" + err.Path
-		return nil, 0, err
+
+	fmt.Println("Fetched users from database")
+
+	// Cache users and their count
+	byteResults, _ := jsoniter.Marshal(users)
+	expiration := time.Duration(config.MetadataConfig.RedisExpirationShort) * time.Second
+
+	if err := redis.SetCache(ctx, cacheKey, byteResults, expiration); err != nil {
+		log.Printf("Failed to set user cache: %v", err)
 	}
 
-	return users, len(allUsers), nil
+	if err := redis.SetCache(ctx, fmt.Sprintf("cnt-%s", cacheKey), strconv.Itoa(len(users)), expiration); err != nil {
+		log.Printf("Failed to set user count cache: %v", err)
+	}
+
+	return users, len(users), nil
 }
 
 // GetUser is get user

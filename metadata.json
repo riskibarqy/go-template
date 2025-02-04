@@ -1,0 +1,6 @@
+{
+    "redisExpirationShort": 60,
+    "redisExpirationMedium": 3600,
+    "redisExpirationLong": 86400
+  }
+  

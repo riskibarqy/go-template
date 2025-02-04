@@ -27,7 +27,7 @@ func GenerateJWTToken(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate the signed token string
-	signedToken, err := token.SignedString([]byte(jwtSecret))
+	signedToken, err := token.SignedString([]byte(AppConfig.JWTSecret))
 	if err != nil {
 		return "", err
 	}
